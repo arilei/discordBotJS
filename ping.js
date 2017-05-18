@@ -22,8 +22,16 @@ client.on('message', message => {
   // If the message is "ping"
   switch (message.content) {
     case 'ping':
-    message.channel.send('pong');
-    break;
+      message.channel.send(client.ping);
+      break;
+    case 'ch':
+      console.log(client.guilds);
+      var guilds =client.guilds;
+      for (var [key, guild] of guilds) {
+      console.log(guild);
+      }
+      guild.createChannel('new-general', 'text');
+      break;
   }
 });
 
