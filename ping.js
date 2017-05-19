@@ -1,6 +1,6 @@
 /*
   A ping pong bot, whenever you send "ping", it replies "pong".
-*/
+  */
 
 // Import the discord.js module
 const Discord = require('discord.js');
@@ -19,23 +19,32 @@ client.on('ready', () => {
 
 // Create an event listener for messages
 client.on('message', message => {
-  // If the message is "ping"
-  switch (message.content) {
-    case 'ping':
-      message.channel.send(client.ping);
-      break;
-    case 'ch':
-      console.log(client.guilds);
-      var guilds =client.guilds;
-      for (var [key, guild] of guilds) {
-      console.log(guild);
+  if (message.content.substring(0,5) == "nyan!"){ // Si empieza con nyan!
+    var mensaje = message.content.substring(5);  // Guardar el contenido en variable auxiliar
+    if(mensaje.includes('(')){ // Si tiene parametros
+      switch (mensaje.substring(0,mensaje.indexof('(')-1)) {  // Hacer un switch hasta los parametros
+        case 'ch':
+        console.log(client.guilds);
+        var guilds =client.guilds;
+        for (var [key, guild] of guilds) {
+          console.log(guild);
+        }
+        guild.createChannel('new-general', 'text');
+        break;
       }
-      guild.createChannel('new-general', 'text');
-      break;
-     case 'destroyMe':	
-	client.destroy();
-	process.exit();
-	break;
+    }else{
+      switch(mensaje){
+        case 'ping':
+        message.channel.send(client.ping);
+        break;
+        case 'destroyMe':
+        message.channel.send("I'll be back").then(() => {
+          client.destroy();
+          process.exit();
+        });
+        break;
+      }
+    }
   }
 });
 
