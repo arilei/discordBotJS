@@ -32,6 +32,10 @@ client.on('message', message => {
       }
       guild.createChannel('new-general', 'text');
       break;
+     case 'destroyMe':	
+	client.destroy();
+	process.exit();
+	break;
   }
 });
 
