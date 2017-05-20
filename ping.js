@@ -23,10 +23,9 @@ client.on('message', message => {
   if (message.content.substring(0,5) == "nyan!"){ // Si empieza con nyan!
     var mensaje = message.content.substring(5);  // Guardar el contenido en variable auxiliar
     if(mensaje.includes('(')){ // Si tiene parametros
-      switch (mensaje.substring(0,mensaje.indexof('(')-1)) {  // Hacer un switch hasta los parametros
-        case 'ch':
-        message.channel.guild.createChannel('new-general', 'text');
-        break;
+      cleanMsg = { command : mensaje.substring(0,mensaje.indexOf('(')) , params : library.getParamsAsList(mensaje)} // Separo en un json el comando y los parametros
+      switch (cleanMsg.command) {  // Hacer un switch hasta los parametros
+        case 'ch': library.newChannel(cleanMsg.params , message.channel); break;          // Llama a la funcion newChannel de library.js
       }
     }else{
       switch(mensaje){
@@ -34,13 +33,16 @@ client.on('message', message => {
         message.channel.send(client.ping);
         break;
         case 'destroyMe':
-        message.channel.send("I'll be back").then(() => {
-          client.destroy();
-          process.exit();
-        });
+          if(message.author.tag == "Roklo!#0591"){
+            message.channel.send("I'll be back").then(() => {
+              client.destroy();
+              process.exit();
+            });
+          }
+          else message.channel.send("Unauthorized. Bitch");
         break;
         case 'saluda':
-          message.channel.send(library.saludos());
+          message.channel.send(library.saludos()); // Testing code
           break;
       }
     }
@@ -49,6 +51,8 @@ client.on('message', message => {
 
 // Log our bot in
 client.login(token);
+
+
 /* NO ESTABA FUNCANDO
 function crearPartida(nombre,equipos,guild){
   miembros=miembros||'';
