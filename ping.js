@@ -4,6 +4,7 @@
 
 // Import the discord.js module
 const Discord = require('discord.js');
+const library = require('./library.js');
 
 // Create an instance of a Discord client
 const client = new Discord.Client();
@@ -38,6 +39,9 @@ client.on('message', message => {
           process.exit();
         });
         break;
+        case 'saluda':
+          message.channel.send(library.saludos());
+          break;
       }
     }
   }
@@ -45,7 +49,7 @@ client.on('message', message => {
 
 // Log our bot in
 client.login(token);
-
+/* NO ESTABA FUNCANDO
 function crearPartida(nombre,equipos,guild){
   miembros=miembros||'';
   var i;
@@ -56,4 +60,4 @@ function crearPartida(nombre,equipos,guild){
   }
 }
 
-}
+}*/
