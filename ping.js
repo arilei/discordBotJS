@@ -24,12 +24,7 @@ client.on('message', message => {
     if(mensaje.includes('(')){ // Si tiene parametros
       switch (mensaje.substring(0,mensaje.indexof('(')-1)) {  // Hacer un switch hasta los parametros
         case 'ch':
-        console.log(client.guilds);
-        var guilds =client.guilds;
-        for (var [key, guild] of guilds) {
-          console.log(guild);
-        }
-        guild.createChannel('new-general', 'text');
+        message.channel.guild.createChannel('new-general', 'text');
         break;
       }
     }else{
@@ -50,3 +45,15 @@ client.on('message', message => {
 
 // Log our bot in
 client.login(token);
+
+function crearPartida(nombre,equipos,guild){
+  miembros=miembros||'';
+  var i;
+  if (miembros==''){
+    for (i = 0; i < equipos; i++) {
+    guild.createChannel(nombre+i, 'voice');
+  }
+  }
+}
+
+}
