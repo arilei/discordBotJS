@@ -6,7 +6,8 @@
      
     1*administracino de canales para optimizar partidas/juegos   
     2*framework para crear juego de rol   
-    3*interacciones inter-server/guilds   
+    3*interacciones inter-server/guilds
+    4*Avisar cuando alguien entra a un voicechat
       
      
   Checkpoints para cada objetivo   
@@ -27,4 +28,9 @@
       1- Relacionar server "amigos"   
       2- Mandar mensajes entre ambos   
       3- otras interacciones?   
+      
+    4* Avisar cuando alguien entra a un voicechat
+      1- Avisar cuando entra alguien
+      2- Poner en que canal
+      3- Poner un cooldown por usuario
   
