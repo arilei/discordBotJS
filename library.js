@@ -13,14 +13,26 @@ function getParamsAsList(mensaje){
   return params.split(',')
 }
 
-function newChannel(params,channel){
+function newChannel(params,guild,storage){
   if(params.length == 2){
     if(params[1] == "text" ||params[1] == "voice"){
-      channel.guild.createChannel(params[0], params[1]);
+      guild.createChannel(params[0], params[1])
+      .then(newChannel =>{
+        var aux = [];
+        if(storage.getItemSync('myChannels') == undefined){
+          aux.push({guildId : guild.id, channelId : newChannel.id})
+          storage.setItemSync('myChannels',aux);
+        }
+        else{
+          aux = storage.getItemSync('myChannels');
+          aux.push({guildId : guild.id, channelId : newChannel.id});
+          storage.setItemSync('myChannels', aux);
+        }
+      });
       return;
     }
   }
-  channel.send("Command Error");
+  guild.channel.send("Command Error");
   return;
 }
 
