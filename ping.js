@@ -27,7 +27,7 @@ client.on('message', message => {
     if(mensaje.includes('(')){ // Si tiene parametros
       cleanMsg = { command : mensaje.substring(0,mensaje.indexOf('(')) , params : library.getParamsAsList(mensaje)} // Separo en un json el comando y los parametros
       switch (cleanMsg.command) {  // Hacer un switch hasta los parametros
-        case 'ch': library.newChannel(cleanMsg.params , message.guild, storage); break;          // Llama a la funcion newChannel de library.js       
+        case 'ch': library.newChannel(cleanMsg.params , message, storage); break;          // Llama a la funcion newChannel de library.js
       }
     }else{ // Si es una funcion sin parametros
       switch(mensaje){

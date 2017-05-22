@@ -13,26 +13,38 @@ function getParamsAsList(mensaje){
   return params.split(',')
 }
 
-function newChannel(params,guild,storage){
+function newChannel(params,mensaje,storage){
   if(params.length == 2){
     if(params[1] == "text" ||params[1] == "voice"){
-      guild.createChannel(params[0], params[1])
+      mensaje.guild.createChannel(params[0], params[1])
       .then(newChannel =>{
-        var aux = [];
-        if(storage.getItemSync('myChannels') == undefined){
-          aux.push({guildId : guild.id, channelId : newChannel.id})
-          storage.setItemSync('myChannels',aux);
+        var aux = {};
+        var auxuc = [];
+        if(!(storage.getItemSync(mensaje.guild.id) == undefined)){
+          aux = storage.getItemSync(mensaje.guild.id);
+          console.log(aux);
+          console.log('___________________________');
+          console.log(mensaje.author.id);
+          console.log('___________________________');
+          console.log(aux[mensaje.author.id]);
+          console.log('___________________________');
+          if (!(aux[mensaje.author.id]==undefined)){
+            auxuc=aux[mensaje.author.id];
+            var strauxuc =aux[mensaje.author.id];
+            console.log(strauxuc);
+            console.log('___________________________');
         }
-        else{
-          aux = storage.getItemSync('myChannels');
-          aux.push({guildId : guild.id, channelId : newChannel.id});
-          storage.setItemSync('myChannels', aux);
         }
+
+        auxuc.push(newChannel.id);
+        aux[mensaje.author.id]=(auxuc);
+        console.log(aux);
+        storage.setItemSync(mensaje.guild.id,aux);
       });
       return;
     }
   }
-  guild.channel.send("Command Error");
+  mensaje.guild.channel.send("Command Error");
   return;
 }
 
