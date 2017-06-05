@@ -79,7 +79,7 @@ client.on('message', message => {
 });
 
 client.on('voiceStateUpdate',(oldMember,newMember) =>{
-  var disabledGuilds = storage.getItemSync('disabledNotif')
+  var disabledGuilds = storage.getItemSync('disabledNotifList')
   if(disabledGuilds == undefined)
     disabledGuilds = [];
   if(!disabledGuilds.includes(newMember.guild.id)){
