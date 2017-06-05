@@ -60,15 +60,29 @@ function seConecto(miembro,pila){
   if (pila[miembro.voiceChannel.guild.id]!=null){
     aux=pila[miembro.voiceChannel.guild.id];
     if (aux[miembro.id]!=null){
-      if (new Date(new Date().getTime()+5*(-60000))>new Date(aux[miembro.id])){
+      if (new Date(new Date().getTime()+5*(-60000))<new Date(aux[miembro.id])){
+
         return;
       }
     }
   }
-  miembro.voiceChannel.guild.defaultChannel.send("@here se conecto "+ miembro.nickname )
+  miembro.voiceChannel.guild.defaultChannel.send("@here se conecto @"+ miembro.user.tag )
 }
 
 function seDesconecto(miembro,pila){
+  aux={};
+  if (pila[miembro.voiceChannel.guild.id]!=null){
+    aux=pila[miembro.voiceChannel.guild.id];
+    if (aux[miembro.id]!=null){
+      delete aux[miembro.id];
+    }
+    delete pila[miembro.voiceChannel.guild.id];
+  }
+  aux[miembro.id]=new Date().getTime();
+  console.log('___________________________');
+  console.log(aux);
+  pila[miembro.voiceChannel.guild.id]=aux;
+  return pila;
 }
 
 /*

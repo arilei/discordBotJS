@@ -81,8 +81,14 @@ client.on('voiceStateUpdate',(oldMember,newMember) =>{
   if (oldMember.voiceChannel==null || oldMember.voiceChannel == undefined){
     library.seConecto(newMember,avisos);
   }else if(newMember.voiceChannel==null || newMember.voiceChannel == undefined){
-    library.seDesconecto(oldMember,avisos);
+    avisos=library.seDesconecto(oldMember,avisos);
+    console.log('___________________________');
+    console.log(avisos);
   }else if(oldMember.voiceChannel.guild.id==newMember.voiceChannel.guild.id){
+    console.log('___________________________');
+    console.log(oldMember.voiceChannel.guild.id);
+    console.log('viejo /| nuevo V se cambio de sv');
+    console.log(newMember.voiceChannel.guild.id);
     return;
   }
 
