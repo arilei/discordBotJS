@@ -9,6 +9,8 @@ var storage = require('node-persist');
 // Create an instance of a Discord client
 const client = new Discord.Client();
 
+var avisos={};
+
 // The token of your bot - https://discordapp.com/developers/applications/me
 const token = require('./token.js').token;
 
@@ -18,6 +20,7 @@ console.log('Storage initialized');
 // from Discord _after_ ready is emitted
 client.on('ready', () => {
   console.log('I am ready!');
+
 });
 
 // Create an event listener for messages
@@ -74,6 +77,16 @@ client.on('message', message => {
   }
 });
 
+client.on('voiceStateUpdate',(oldMember,newMember) =>{
+  if (oldMember.voiceChannel==null || oldMember.voiceChannel == undefined){
+    library.seConecto(newMember,avisos);
+  }else if(newMember.voiceChannel==null || newMember.voiceChannel == undefined){
+    library.seDesconecto(oldMember,avisos);
+  }else if(oldMember.voiceChannel.guild.id==newMember.voiceChannel.guild.id){
+    return;
+  }
+
+});
 // Log our bot in
 client.login(token);
 

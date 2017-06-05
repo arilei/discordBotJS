@@ -2,6 +2,8 @@ module.exports = { //MANERA 1
   saludos : saludosMethod
  ,getParamsAsList : getParamsAsList
  ,newChannel : newChannel
+ ,seConecto : seConecto
+ ,seDesconecto : seDesconecto
 };
 
 function saludosMethod(){
@@ -44,12 +46,30 @@ function newChannel(params,mensaje,storage){
       return;
     }
   }
-  mensaje.guild.channel.send("Command Error");
+  mensaje.channel.send("Command Error");
   return;
 }
 
+function deleteChannel(){
 
+}
 
+function seConecto(miembro,pila){
+  aux={};
+
+  if (pila[miembro.voiceChannel.guild.id]!=null){
+    aux=pila[miembro.voiceChannel.guild.id];
+    if (aux[miembro.id]!=null){
+      if (new Date(new Date().getTime()+5*(-60000))>new Date(aux[miembro.id])){
+        return;
+      }
+    }
+  }
+  miembro.voiceChannel.guild.defaultChannel.send("@here se conecto "+ miembro.nickname )
+}
+
+function seDesconecto(miembro,pila){
+}
 
 /*
 module.exports = {   // MANERA 2
