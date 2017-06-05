@@ -72,26 +72,31 @@ client.on('message', message => {
         case 'saluda':
           message.channel.send(library.saludos()); // Testing code
           break;
+        case 'toggleNotif': library.toggleNotif(message, storage); break;
       }
     }
   }
 });
 
 client.on('voiceStateUpdate',(oldMember,newMember) =>{
-  if (oldMember.voiceChannel==null || oldMember.voiceChannel == undefined){
-    library.seConecto(newMember,avisos);
-  }else if(newMember.voiceChannel==null || newMember.voiceChannel == undefined){
-    avisos=library.seDesconecto(oldMember,avisos);
-    console.log('___________________________');
-    console.log(avisos);
-  }else if(oldMember.voiceChannel.guild.id==newMember.voiceChannel.guild.id){
-    console.log('___________________________');
-    console.log(oldMember.voiceChannel.guild.id);
-    console.log('viejo /| nuevo V se cambio de sv');
-    console.log(newMember.voiceChannel.guild.id);
-    return;
-  }
-
+  var disabledGuilds = storage.getItemSync('disabledNotif')
+  if(disabledGuilds == undefined)
+    disabledGuilds = [];
+  if(!disabledGuilds.includes(newMember.guild.id)){
+    if (oldMember.voiceChannel==null || oldMember.voiceChannel == undefined){
+      library.seConecto(newMember,avisos);
+    }else if(newMember.voiceChannel==null || newMember.voiceChannel == undefined){
+      avisos=library.seDesconecto(oldMember,avisos);
+      console.log('___________________________');
+      console.log(avisos);
+    }else if(oldMember.voiceChannel.guild.id==newMember.voiceChannel.guild.id){
+      console.log('___________________________');
+      console.log(oldMember.voiceChannel.guild.id);
+      console.log('viejo /| nuevo V se cambio de sv');
+      console.log(newMember.voiceChannel.guild.id);
+      return;
+    }
+  } else console.log("DISABLED NOTIFS IN "+ newMember.guild.id);
 });
 // Log our bot in
 client.login(token);

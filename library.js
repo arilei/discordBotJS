@@ -4,6 +4,7 @@ module.exports = { //MANERA 1
  ,newChannel : newChannel
  ,seConecto : seConecto
  ,seDesconecto : seDesconecto
+ ,toggleNotif : toggleNotif
 };
 
 function saludosMethod(){
@@ -85,9 +86,14 @@ function seDesconecto(miembro,pila){
   return pila;
 }
 
-/*
-module.exports = {   // MANERA 2
-  saludos : function(){
-    return "Hola wachem";
+function toggleNotif(message, storage){
+  var aux = storage.getItemSync('disabledNotifList');
+  if(aux == undefined){
+    aux = [message.guild.id];
+  }else if(!aux.includes(message.guild.id)){
+    aux.push(message.guild.id);
+  }else{
+    aux.splice(aux.indexOf(message.guild.id),1);
   }
-}*/
+  storage.setItemSync('disabledNotifList',aux);
+}
