@@ -90,10 +90,13 @@ function toggleNotif(message, storage){
   var aux = storage.getItemSync('disabledNotifList');
   if(aux == undefined){
     aux = [message.guild.id];
+    message.channel.send("Notificaciones deshabilitadas");
   }else if(!aux.includes(message.guild.id)){
     aux.push(message.guild.id);
+    message.channel.send("Notificaciones deshabilitadas");
   }else{
     aux.splice(aux.indexOf(message.guild.id),1);
+    message.channel.send("Notificaciones habilitadas");
   }
   storage.setItemSync('disabledNotifList',aux);
 }
