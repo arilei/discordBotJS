@@ -23,26 +23,32 @@ function newChannel(params,mensaje,storage){
       .then(newChannel =>{
         var aux = {};
         var auxuc = [];
-        if(!(storage.getItemSync(mensaje.guild.id) == undefined)){
-          aux = storage.getItemSync(mensaje.guild.id);
-          console.log(aux);
-          console.log('___________________________');
-          console.log(mensaje.author.id);
-          console.log('___________________________');
-          console.log(aux[mensaje.author.id]);
-          console.log('___________________________');
-          if (!(aux[mensaje.author.id]==undefined)){
-            auxuc=aux[mensaje.author.id];
-            var strauxuc =aux[mensaje.author.id];
-            console.log(strauxuc);
+        var storageValue = storage.getItemSync(mensaje.guild.id);
+        if(!(storageValue == undefined)){
+          if(storageValue.botChannelList != undefined){
+            aux = storageValue.botChannelList;
+            console.log(aux);
             console.log('___________________________');
-        }
+            console.log(mensaje.author.id);
+            console.log('___________________________');
+            console.log(aux[mensaje.author.id]);
+            console.log('___________________________');
+            if (!(aux[mensaje.author.id]==undefined)){
+              auxuc=aux[mensaje.author.id];
+              var strauxuc =aux[mensaje.author.id];
+              console.log(strauxuc);
+              console.log('___________________________');
+            }
+          }
+        }else{
+          storageValue = {}
         }
 
         auxuc.push(newChannel.id);
         aux[mensaje.author.id]=(auxuc);
         console.log(aux);
-        storage.setItemSync(mensaje.guild.id,aux);
+        storageValue.botChannelList = aux;
+        storage.setItemSync(mensaje.guild.id,storageValue);
       });
       return;
     }
@@ -67,7 +73,7 @@ function seConecto(miembro,pila){
       }
     }
   }
-  miembro.voiceChannel.guild.defaultChannel.send("@here se conecto @"+ miembro.user.tag )
+  miembro.voiceChannel.guild.defaultChannel.send("@here. Se conecto "+ miembro + " al canal " + miembro.voiceChannel )
 }
 
 function seDesconecto(miembro,pila){
@@ -87,16 +93,20 @@ function seDesconecto(miembro,pila){
 }
 
 function toggleNotif(message, storage){
-  var aux = storage.getItemSync('disabledNotifList');
-  if(aux == undefined){
-    aux = [message.guild.id];
+  var storageValue = storage.getItemSync(message.guild.id);
+  if(storageValue == undefined)
+    storageValue = {};
+  var aux = storageValue.notificationsEnabled;
+  if(aux == undefined){ // Default = habilitadas (true) entonces cambiar a false al estar vacio
+    aux = false;
     message.channel.send("Notificaciones deshabilitadas");
-  }else if(!aux.includes(message.guild.id)){
-    aux.push(message.guild.id);
-    message.channel.send("Notificaciones deshabilitadas");
-  }else{
-    aux.splice(aux.indexOf(message.guild.id),1);
+  }else if(!aux){
+    aux = true;
     message.channel.send("Notificaciones habilitadas");
+  }else{
+    aux = false
+    message.channel.send("Notificaciones deshabilitadas");
   }
-  storage.setItemSync('disabledNotifList',aux);
+  storageValue.notificationsEnabled = aux
+  storage.setItemSync(message.guild.id,storageValue);
 }

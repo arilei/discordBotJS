@@ -60,13 +60,20 @@ client.on('message', message => {
           break;
         case 'clearAllChannels':
           if(message.author.tag == "Roklo!#0591"){
-            var channelList = storage.getItemSync('myChannels');
-            if(channelList == undefined)
-              return;
-            for(var obj of channelList){
-              message.guild.channels.get(obj.channelId).delete();
+            var storageValue = storage.getItemSync(message.guild.id);
+            if(storageValue != undefined){
+              var channelList = storageValue.botChannelList;
+              if(channelList != undefined){ 
+                for(var userId in channelList){
+                  for(var channelId of channelList[userId]){
+                    console.log(channelId);
+                    message.guild.channels.get(channelId).delete();
+                  }
+                }
+                storageValue.botChannelList = undefined;
+                storage.setItemSync(message.guild.id,storageValue);
+              }
             }
-            storage.removeItemSync('myChannels');
           }
           break;
         case 'saluda':
@@ -79,10 +86,10 @@ client.on('message', message => {
 });
 
 client.on('voiceStateUpdate',(oldMember,newMember) =>{
-  var disabledGuilds = storage.getItemSync('disabledNotifList')
-  if(disabledGuilds == undefined)
-    disabledGuilds = [];
-  if(!disabledGuilds.includes(newMember.guild.id)){
+  var guildNotifStatus = storage.getItemSync(newMember.guild.id)
+  if(guildNotifStatus == undefined)
+    guildNotifStatus = {notificationsEnabled : true};
+  if(guildNotifStatus.notificationsEnabled){
     if (oldMember.voiceChannel==null || oldMember.voiceChannel == undefined){
       library.seConecto(newMember,avisos);
     }else if(newMember.voiceChannel==null || newMember.voiceChannel == undefined){
