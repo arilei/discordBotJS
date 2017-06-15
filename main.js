@@ -30,7 +30,8 @@ client.on('message', message => {
     if(mensaje.includes('(')){ // Si tiene parametros
       cleanMsg = { command : mensaje.substring(0,mensaje.indexOf('(')) , params : library.getParamsAsList(mensaje)} // Separo en un json el comando y los parametros
       switch (cleanMsg.command) {  // Hacer un switch hasta los parametros
-        case 'ch': library.newChannel(cleanMsg.params , message, storage); break;          // Llama a la funcion newChannel de library.js
+        case 'ch': library.newChannel(cleanMsg.params , message, storage); break;
+        case 'newGame' : library.newGame(cleanMsg.params, message, storage); break;
       }
     }else{ // Si es una funcion sin parametros
       switch(mensaje){
@@ -38,17 +39,16 @@ client.on('message', message => {
         message.channel.send(client.ping);
         break;
         case 'destroyMe':
-          if(isAdmin(message.author.tag)){
+          if(isAdmin(message.author.tag,message)){
             message.channel.send("I'll be back").then(() => {
               client.destroy().then(()=>{
                 process.exit();
               })
             });
           }
-          else message.channel.send("Unauthorized. Bitch");
         break;
         case 'clearStorage':
-          if(isAdmin(message.author.tag))
+          if(isAdmin(message.author.tag,message))
             storage.clear()
             .then(response =>{
               message.channel.send("Success");
@@ -59,14 +59,13 @@ client.on('message', message => {
             })
           break;
         case 'clearAllChannels':
-          if(isAdmin(message.author.tag)){
+          if(isAdmin(message.author.tag,message)){
             var storageValue = storage.getItemSync(message.guild.id);
             if(storageValue != undefined){
               var channelList = storageValue.botChannelList;
               if(channelList != undefined){ 
                 for(var userId in channelList){
                   for(var channelId of channelList[userId]){
-                    console.log(channelId);
                     message.guild.channels.get(channelId).delete();
                   }
                 }
@@ -94,13 +93,7 @@ client.on('voiceStateUpdate',(oldMember,newMember) =>{
       library.seConecto(newMember,avisos);
     }else if(newMember.voiceChannel==null || newMember.voiceChannel == undefined){
       avisos=library.seDesconecto(oldMember,avisos);
-      console.log('___________________________');
-      console.log(avisos);
     }else if(oldMember.voiceChannel.guild.id==newMember.voiceChannel.guild.id){
-      console.log('___________________________');
-      console.log(oldMember.voiceChannel.guild.id);
-      console.log('viejo /| nuevo V se cambio de sv');
-      console.log(newMember.voiceChannel.guild.id);
       return;
     }
   } else console.log("DISABLED NOTIFS IN "+ newMember.guild.id);
@@ -108,20 +101,12 @@ client.on('voiceStateUpdate',(oldMember,newMember) =>{
 // Log our bot in
 client.login(token);
 
-
-/* NO ESTABA FUNCANDO
-function crearPartida(nombre,equipos,guild){
-  miembros=miembros||'';
-  var i;
-  if (miembros==''){
-    for (i = 0; i < equipos; i++) {
-    guild.createChannel(nombre+i, 'voice');
+function isAdmin(memberTag,message){
+  if(memberTag == "Roklo!#0591" || memberTag == "taric#3591" || memberTag == "Zephi!!#0180")
+    return true;
+  else{
+    message.channel.send("No tienes permisos para ejecutar este comando");
+    return false;
   }
-  }
-}
-
-}*/
-function isAdmin(memberTag){
-  return memberTag == "Roklo!#0591" || memberTag == "taric#3591" || memberTag == "Zephi!!#0180"
 ;
 }

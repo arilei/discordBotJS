@@ -5,6 +5,7 @@ module.exports = { //MANERA 1
  ,seConecto : seConecto
  ,seDesconecto : seDesconecto
  ,toggleNotif : toggleNotif
+ ,newGame : newGame
 };
 
 function saludosMethod(){
@@ -27,17 +28,9 @@ function newChannel(params,mensaje,storage){
         if(!(storageValue == undefined)){
           if(storageValue.botChannelList != undefined){
             aux = storageValue.botChannelList;
-            console.log(aux);
-            console.log('___________________________');
-            console.log(mensaje.author.id);
-            console.log('___________________________');
-            console.log(aux[mensaje.author.id]);
-            console.log('___________________________');
             if (!(aux[mensaje.author.id]==undefined)){
               auxuc=aux[mensaje.author.id];
               var strauxuc =aux[mensaje.author.id];
-              console.log(strauxuc);
-              console.log('___________________________');
             }
           }
         }else{
@@ -86,8 +79,6 @@ function seDesconecto(miembro,pila){
     delete pila[miembro.voiceChannel.guild.id];
   }
   aux[miembro.id]=new Date().getTime();
-  console.log('___________________________');
-  console.log(aux);
   pila[miembro.voiceChannel.guild.id]=aux;
   return pila;
 }
@@ -109,4 +100,31 @@ function toggleNotif(message, storage){
   }
   storageValue.notificationsEnabled = aux
   storage.setItemSync(message.guild.id,storageValue);
+}
+
+
+function newGame(params,message,storage){
+  if(params.length <2){
+    message.channel.send("Comando inválido");
+    return;
+  }
+  initializeChannels(params[0],params[1],message,storage); // params[0] = cantidad de equipos ; params[1] = nombre de canales ; params[>=2] = jugadores
+  // Falta agregar jugadores a los canales
+}
+
+
+
+function initializeChannels(teamsAmmount,teamNames,message,storage){
+  if(teamsAmmount <1){
+    message.channel.send("La cantidad de equipos no puede ser menos que 1");
+    return;
+  }
+  console.log("____________________________________________");
+  console.log("Creando "+ teamsAmmount + " canales...");
+  for(var i=1;i<=teamsAmmount;i++){
+    newChannel([teamNames+" "+i,"voice"],message,storage);
+    console.log("----Canal "+ i+ " creado correctamente");
+  }
+  console.log(teamsAmmount + " canales creados correctamente");
+  console.log("____________________________________________");
 }
