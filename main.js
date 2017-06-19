@@ -35,9 +35,7 @@ client.on('message', message => {
       }
     }else{ // Si es una funcion sin parametros
       switch(mensaje){
-        case 'ping':
-        message.channel.send(client.ping);
-        break;
+        case 'ping': message.channel.send(client.ping); break;
         case 'destroyMe':
           if(isAdmin(message.author.tag,message)){
             message.channel.send("I'll be back").then(() => {

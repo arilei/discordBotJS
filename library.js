@@ -8,6 +8,7 @@ module.exports = { //MANERA 1
  ,newGame : newGame
 };
 
+
 function saludosMethod(){
     return "Hola wachem ";
   }
@@ -108,8 +109,34 @@ function newGame(params,message,storage){
     message.channel.send("Comando inválido");
     return;
   }
+
+  var storageValue = storage.getItemSync(message.guild.id);
+  if(storageValue == undefined)
+    storageValue = {};
+  var storageGameData = storageValue.gameData;
+  if(storageGameData == undefined){
+    storageGameData = {}
+    storageGameData.inProgress = false;
+  }
+  if(storageGameData.inProgress == true){
+    message.channel.send("Ya hay un juego en progreso!");
+    return;
+  }
+
+  storageGameData.inProgress = true;
+  storageGameData.teamsAmmount = params[0];
+  storageGameData.channelNames = params[1];
+  storageGameData.owner = message.member.id;
+  storageGameData.channelList = [];
+  storageGameData.roleList = [];
+  storageGameData.memberList = [];
+
   initializeChannels(params[0],params[1],message,storage); // params[0] = cantidad de equipos ; params[1] = nombre de canales ; params[>=2] = jugadores
   // Falta agregar jugadores a los canales
+  storageValue.gameData = storageGameData;
+  console.log("storageValue -------------------------");
+  console.log(storageValue);
+  storage.setItemSync(message.guild.id,storageValue);
 }
 
 
