@@ -147,6 +147,7 @@ function initializeChannels(teamsAmmount,teamNames,message,storage){
      if(teamsAmmount <1){
       message.channel.send("La cantidad de equipos no puede ser menos que 1");
       reject();
+      return;
     }
     console.log("____________________________________________");
     console.log("Creando "+ teamsAmmount + " canales...");
