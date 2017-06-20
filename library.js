@@ -21,7 +21,7 @@ function getParamsAsList(mensaje){
 function newChannel(params,mensaje,storage){
   if(params.length == 2){
     if(params[1] == "text" ||params[1] == "voice"){
-      mensaje.guild.createChannel(params[0], params[1])
+      return mensaje.guild.createChannel(params[0], params[1])
       .then(newChannel =>{
         var aux = {};
         var auxuc = [];
@@ -40,15 +40,12 @@ function newChannel(params,mensaje,storage){
 
         auxuc.push(newChannel.id);
         aux[mensaje.author.id]=(auxuc);
-        console.log(aux);
         storageValue.botChannelList = aux;
         storage.setItemSync(mensaje.guild.id,storageValue);
+        return newChannel.id;
       });
-      return;
     }
   }
-  mensaje.channel.send("Command Error");
-  return;
 }
 
 function deleteChannel(){
@@ -131,27 +128,36 @@ function newGame(params,message,storage){
   storageGameData.roleList = [];
   storageGameData.memberList = [];
 
-  initializeChannels(params[0],params[1],message,storage); // params[0] = cantidad de equipos ; params[1] = nombre de canales ; params[>=2] = jugadores
+  Promise.all([initializeChannels(params[0],params[1],message,storage)]) // Agregar otras promises para roles, miembros, etc para hacer multithreading. GG YO
+  .then(response =>{
+    storageGameData.channelList = response[0];
+    storageValue.gameData = storageGameData;
+    storage.setItemSync(message.guild.id,storageValue);
+    message.channel.send("Juego creado correctamente!");
+  })
+  .catch(()=>{
+    message.channel.send("Error al crear el juego");
+  }); // params[0] = cantidad de equipos ; params[1] = nombre de canales ; params[>=2] = jugadores
   // Falta agregar jugadores a los canales
-  storageValue.gameData = storageGameData;
-  console.log("storageValue -------------------------");
-  console.log(storageValue);
-  storage.setItemSync(message.guild.id,storageValue);
 }
 
 
-
 function initializeChannels(teamsAmmount,teamNames,message,storage){
-  if(teamsAmmount <1){
-    message.channel.send("La cantidad de equipos no puede ser menos que 1");
-    return;
-  }
-  console.log("____________________________________________");
-  console.log("Creando "+ teamsAmmount + " canales...");
-  for(var i=1;i<=teamsAmmount;i++){
-    newChannel([teamNames+" "+i,"voice"],message,storage);
-    console.log("----Canal "+ i+ " creado correctamente");
-  }
-  console.log(teamsAmmount + " canales creados correctamente");
-  console.log("____________________________________________");
+  return new Promise((resolve,reject) => {
+     if(teamsAmmount <1){
+      message.channel.send("La cantidad de equipos no puede ser menos que 1");
+      reject();
+    }
+    console.log("____________________________________________");
+    console.log("Creando "+ teamsAmmount + " canales...");
+    var promiseList = [];
+    for(var i=1;i<=teamsAmmount;i++){
+      promiseList.push(newChannel([teamNames+" "+i,"voice"],message,storage));
+    }
+    Promise.all(promiseList).then(values=>{
+      console.log(teamsAmmount + " canales creados correctamente");
+      console.log("____________________________________________");
+      resolve(values);
+    })
+  })
 }
