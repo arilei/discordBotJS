@@ -38,7 +38,7 @@ client.on('message', message => {
       switch(mensaje){
         case 'ping': message.channel.send(client.ping); break;
         case 'destroyMe':
-          if(isAdmin(message.author.tag,message)){
+          if(library.isAdmin(message.author.tag,message)){
             message.channel.send("I'll be back").then(() => {
               client.destroy().then(()=>{
                 process.exit();
@@ -47,7 +47,7 @@ client.on('message', message => {
           }
         break;
         case 'clearStorage':
-          if(isAdmin(message.author.tag,message))
+          if(library.isAdmin(message.author.tag,message))
             storage.clear()
             .then(response =>{
               message.channel.send("Success");
@@ -58,7 +58,7 @@ client.on('message', message => {
             })
           break;
         case 'clearAllChannels': // NOT WORKING
-          if(isAdmin(message.author.tag,message)){
+          if(library.isAdmin(message.author.tag,message)){
             var storageValue = storage.getItemSync(message.guild.id);
             if(storageValue != undefined){
               var channelList = storageValue.botChannelList;
@@ -73,6 +73,9 @@ client.on('message', message => {
               }
             }
           }
+          break;
+        case 'clearGame':
+          library.clearGame(message,storage);
           break;
         case 'saluda':
           message.channel.send(library.saludos()); // Testing code
@@ -99,13 +102,3 @@ client.on('voiceStateUpdate',(oldMember,newMember) =>{
 });
 // Log our bot in
 client.login(token);
-
-function isAdmin(memberTag,message){
-  if(memberTag == "Roklo!#0591" || memberTag == "taric#3591" || memberTag == "Zephi!!#0180")
-    return true;
-  else{
-    message.channel.send("No tienes permisos para ejecutar este comando");
-    return false;
-  }
-;
-}

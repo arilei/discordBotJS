@@ -6,6 +6,8 @@ module.exports = { //MANERA 1
  ,seDesconecto : seDesconecto
  ,toggleNotif : toggleNotif
  ,newGame : newGame
+ ,clearGame : clearGame
+ ,isAdmin : isAdmin
 };
 
 
@@ -100,6 +102,48 @@ function toggleNotif(message, storage){
   storage.setItemSync(message.guild.id,storageValue);
 }
 
+function clearGame(message,storage){
+  var storageValue = storage.getItemSync(message.guild.id);
+  if(storageValue == undefined)
+    storageValue = {};
+  var storageGameData = storageValue.gameData
+  if(storageGameData == undefined)
+    storageGameData = {};
+
+  if(storageGameData == {}){
+    message.channel.send("No hay un juego en progreso!");
+    return;
+  }
+  if((storageGameData.owner != message.author.id) && (!isAdmin(message.author.tag,message))){
+    message.channel.send("No tienes permisos para terminar el juego");
+    return;
+  }
+
+  //
+  // TODO : AGREGAR MOVER A TODOS LOS USER DE LOS CANALES AL DEFAULT DE VOZ
+  //
+
+  console.log("---------------------------------------");
+  console.log("Borrando channels");
+  var channelList = storageGameData.channelList;
+  for(var channelId of channelList){
+    message.guild.channels.get(channelId).delete().then(()=>{console.log("Canal " + channelId + " borrado correctamente")});
+  }
+
+  console.log("---------------------------------------");
+  console.log("Borrando roles");
+  var roleList = storageGameData.roleList;
+  console.log(roleList);
+  for(var roleId of roleList){
+    message.guild.roles.get(roleId).delete().then(()=>{console.log("Role " + roleId + " borrado correctamente")});
+  }
+
+  storageValue.gameData = undefined;
+  storage.setItemSync(message.guild.id,storageValue)
+
+  message.channel.send("Juego terminado");
+}
+
 
 function newGame(params,message,storage){
   if(params.length <2){
@@ -185,4 +229,15 @@ function initializeRoles(teamsAmmount,teamNames,message){
       reject(error);
     })
   })
+}
+
+
+
+function isAdmin(memberTag,message){
+  if(memberTag == "Roklo!#0591" || memberTag == "taric#3591" || memberTag == "Zephi!!#0180")
+    return true;
+  else{
+    message.channel.send("No tienes permisos para ejecutar este comando");
+    return false;
+  }
 }
