@@ -127,16 +127,18 @@ function newGame(params,message,storage){
   storageGameData.channelList = [];
   storageGameData.roleList = [];
   storageGameData.memberList = [];
-
-  Promise.all([initializeChannels(params[0],params[1],message,storage)]) // Agregar otras promises para roles, miembros, etc para hacer multithreading. GG YO
+  Promise.all([initializeChannels(params[0],params[1],message,storage)
+              ,initializeRoles(params[0],params[1],message)]) // Agregar otras promises para roles, miembros, etc para hacer multithreading. GG YO
   .then(response =>{
     storageGameData.channelList = response[0];
+    storageGameData.roleList = response[1];
     storageValue.gameData = storageGameData;
     storage.setItemSync(message.guild.id,storageValue);
     message.channel.send("Juego creado correctamente!");
   })
-  .catch(()=>{
+  .catch(error=>{
     message.channel.send("Error al crear el juego");
+    console.log(error)
   }); // params[0] = cantidad de equipos ; params[1] = nombre de canales ; params[>=2] = jugadores
   // Falta agregar jugadores a los canales
 }
@@ -159,6 +161,28 @@ function initializeChannels(teamsAmmount,teamNames,message,storage){
       console.log(teamsAmmount + " canales creados correctamente");
       console.log("____________________________________________");
       resolve(values);
+    })
+  })
+}
+
+function initializeRoles(teamsAmmount,teamNames,message){
+  return new Promise((resolve,reject) => {
+    var roleArray = [];
+    var promiseList = []
+    for(var i=1;i<=teamsAmmount;i++){
+      promiseList.push(message.guild.createRole({name : teamNames+i + " role"}))
+    }
+    Promise.all(promiseList)
+    .then(values =>{
+      console.log(teamsAmmount + " roles creados correctamente");
+      console.log("____________________________________________");
+      for(var i=0;i<teamsAmmount;i++){    
+        roleArray.push(values[i].id);
+      }
+      resolve(roleArray);
+    })
+    .catch(error =>{
+      reject(error);
     })
   })
 }

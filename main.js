@@ -19,6 +19,7 @@ console.log('Storage initialized');
 // The ready event is vital, it means that your bot will only start reacting to information
 // from Discord _after_ ready is emitted
 client.on('ready', () => {
+  client.user.setGame("Code Testing buachin");
   console.log('I am ready!');
 
 });
@@ -56,7 +57,7 @@ client.on('message', message => {
               console.log(error);
             })
           break;
-        case 'clearAllChannels':
+        case 'clearAllChannels': // NOT WORKING
           if(isAdmin(message.author.tag,message)){
             var storageValue = storage.getItemSync(message.guild.id);
             if(storageValue != undefined){
