@@ -29,8 +29,9 @@
       2- Mandar mensajes entre ambos   
       3- otras interacciones?   
       
-    4* Avisar cuando alguien entra a un voicechat
+    4* Avisar cuando alguien entra a un voicechat (DONE)
       1- Avisar cuando entra alguien
       2- Poner en que canal
       3- Poner un cooldown por usuario
+      + TTS
   
