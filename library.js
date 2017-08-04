@@ -64,7 +64,7 @@ function seConecto(miembro,pila){
       }
     }
   }
-  miembro.voiceChannel.guild.defaultChannel.send("@here. Se conecto "+ miembro + " al canal " + miembro.voiceChannel )
+  miembro.voiceChannel.guild.defaultChannel.send("@here. Se conecto "+ miembro + " al canal " + miembro.voiceChannel,{tts:true} )
 }
 
 function seDesconecto(miembro,pila){
