@@ -74,8 +74,8 @@ client.on('message', message => {
             }
           }
           break;
-        case 'clearGame':
-          library.clearGame(message,storage);
+        case 'finishGame':
+          library.finishGame(message,storage);
           break;
         case 'saluda':
           message.channel.send(library.saludos()); // Testing code

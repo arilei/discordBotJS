@@ -6,7 +6,7 @@ module.exports = { //MANERA 1
  ,seDesconecto : seDesconecto
  ,toggleNotif : toggleNotif
  ,newGame : newGame
- ,clearGame : clearGame
+ ,finishGame : finishGame
  ,isAdmin : isAdmin
 };
 
@@ -102,7 +102,7 @@ function toggleNotif(message, storage){
   storage.setItemSync(message.guild.id,storageValue);
 }
 
-function clearGame(message,storage){
+function finishGame(message,storage){
   var storageValue = storage.getItemSync(message.guild.id);
   if(storageValue == undefined)
     storageValue = {};
