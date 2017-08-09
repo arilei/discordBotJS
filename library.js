@@ -8,8 +8,13 @@ module.exports = { //MANERA 1
  ,newGame : newGame
  ,finishGame : finishGame
  ,isAdmin : isAdmin
+ ,startGame : startGame
 };
 
+function randomStartQuote(){
+  var gameStartQuotes = ["Que la suerte este siempre de su lado.","Que gane el mejor!","Geimu, HAJIMARU"]
+  return gameStartQuotes[Math.floor(Math.random() * gameStartQuotes.length)];
+}
 
 function saludosMethod(){
     return "Hola wachem ";
@@ -48,10 +53,6 @@ function newChannel(params,mensaje,storage){
       });
     }
   }
-}
-
-function deleteChannel(){
-
 }
 
 function seConecto(miembro,pila){
@@ -165,6 +166,7 @@ function newGame(params,message,storage){
   }
 
   storageGameData.inProgress = true;
+  storageGameData.status = 'initializing';
   storageGameData.teamsAmmount = params[0];
   storageGameData.channelNames = params[1];
   storageGameData.owner = message.member.id;
@@ -185,6 +187,40 @@ function newGame(params,message,storage){
     console.log(error)
   }); // params[0] = cantidad de equipos ; params[1] = nombre de canales ; params[>=2] = jugadores
   // Falta agregar jugadores a los canales
+}
+
+function startGame(message,storage){
+  var storageValue = storage.getItemSync(message.guild.id);
+  if(storageValue == undefined)
+    storageValue = {};
+  var storageGameData = storageValue.gameData;
+  if(storageGameData == undefined){
+    storageGameData = {}
+    storageGameData.inProgress = false;
+  }  
+  if((storageGameData.owner != message.author.id) && (!isAdmin(message.author.tag,message))){
+    message.channel.send("No tienes permisos para ejecutar este comando");
+    return;
+  }
+  if(storageGameData.inProgress == false || storageGameData.status == 'running'){
+    message.channel.send("No hay un juego en progreso o ya ha empezado!");
+    return;
+  }
+  console.log("-------------------------------")
+  console.log("Starting game...")
+  for(var channelId of storageGameData.channelList){
+    var channel = message.guild.channels.get(channelId)
+    message.channel.send("Equipo " + channel.name +":");
+    for(var member of channel.members){
+      message.channel.send(member[1].toString());
+    }
+  }
+
+  storageValue.gameData.status = "running";
+  storage.setItemSync(message.guild.id,storageValue);
+  message.channel.send("El juego ha comenzado correctamente");
+  message.channel.send(randomStartQuote());
+  console.log("Game started")
 }
 
 

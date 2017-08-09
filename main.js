@@ -74,6 +74,9 @@ client.on('message', message => {
             }
           }
           break;
+        case 'startGame':
+          library.startGame(message,storage);
+          break;
         case 'finishGame':
           library.finishGame(message,storage);
           break;
