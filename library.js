@@ -131,13 +131,6 @@ function finishGame(message,storage){
     message.guild.channels.get(channelId).delete().then(()=>{console.log("Canal " + channelId + " borrado correctamente")});
   }
 
-  console.log("---------------------------------------");
-  console.log("Borrando roles");
-  var roleList = storageGameData.roleList;
-  console.log(roleList);
-  for(var roleId of roleList){
-    message.guild.roles.get(roleId).delete().then(()=>{console.log("Role " + roleId + " borrado correctamente")});
-  }
 
   storageValue.gameData = undefined;
   storage.setItemSync(message.guild.id,storageValue)
@@ -197,7 +190,7 @@ function startGame(message,storage){
   if(storageGameData == undefined){
     storageGameData = {}
     storageGameData.inProgress = false;
-  }  
+  }
   if((storageGameData.owner != message.author.id) && (!isAdmin(message.author.tag,message))){
     message.channel.send("No tienes permisos para ejecutar este comando");
     return;
@@ -213,6 +206,8 @@ function startGame(message,storage){
     message.channel.send("Equipo " + channel.name +":");
     for(var member of channel.members){
       message.channel.send(member[1].toString());
+      channel.overwritePermissions(channel.guild.defaultRole,{CONNECT:false})
+      channel.overwritePermissions(member[1].user,{CONNECT:true})
     }
   }
 
@@ -256,7 +251,7 @@ function initializeRoles(teamsAmmount,teamNames,message){
     .then(values =>{
       console.log(teamsAmmount + " roles creados correctamente");
       console.log("____________________________________________");
-      for(var i=0;i<teamsAmmount;i++){    
+      for(var i=0;i<teamsAmmount;i++){
         roleArray.push(values[i].id);
       }
       resolve(roleArray);
