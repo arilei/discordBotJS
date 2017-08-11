@@ -12,7 +12,7 @@ module.exports = { //MANERA 1
 };
 
 function randomStartQuote(){
-  var gameStartQuotes = ["Que la suerte este siempre de su lado.","Que gane el mejor!","Geimu, HAJIMARU"]
+  var gameStartQuotes = ["Que la suerte este siempre de su lado.","Que gane el mejor!","Geimu, HAJIMARU","Gentlemen, start your engines"]
   return gameStartQuotes[Math.floor(Math.random() * gameStartQuotes.length)];
 }
 
@@ -131,6 +131,13 @@ function finishGame(message,storage){
     message.guild.channels.get(channelId).delete().then(()=>{console.log("Canal " + channelId + " borrado correctamente")});
   }
 
+  console.log("---------------------------------------");
+  console.log("Borrando roles");
+  var roleList = storageGameData.roleList;
+  for(var roleId of roleList){
+    message.guild.roles.get(roleId).delete().then(()=>{console.log("Rol " + roleId + " borrado correctamente")});
+  }
+
 
   storageValue.gameData = undefined;
   storage.setItemSync(message.guild.id,storageValue)
@@ -167,7 +174,8 @@ function newGame(params,message,storage){
   storageGameData.roleList = [];
   storageGameData.memberList = [];
   Promise.all([initializeChannels(params[0],params[1],message,storage)
-              ,initializeRoles(params[0],params[1],message)]) // Agregar otras promises para roles, miembros, etc para hacer multithreading. GG YO
+              ,initializeRoles(params[0],params[1],message)
+             ]) // Agregar otras promises para roles, miembros, etc para hacer multithreading. GG YO
   .then(response =>{
     storageGameData.channelList = response[0];
     storageGameData.roleList = response[1];
@@ -204,9 +212,9 @@ function startGame(message,storage){
   for(var channelId of storageGameData.channelList){
     var channel = message.guild.channels.get(channelId)
     message.channel.send("Equipo " + channel.name +":");
+    channel.overwritePermissions(channel.guild.defaultRole,{CONNECT:false})
     for(var member of channel.members){
       message.channel.send(member[1].toString());
-      channel.overwritePermissions(channel.guild.defaultRole,{CONNECT:false})
       channel.overwritePermissions(member[1].user,{CONNECT:true})
     }
   }
