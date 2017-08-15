@@ -1,5 +1,4 @@
-module.exports = { //MANERA 1
-  saludos : saludosMethod
+module.exports = {
  ,getParamsAsList : getParamsAsList
  ,newChannel : newChannel
  ,seConecto : seConecto
@@ -15,10 +14,6 @@ function randomStartQuote(){
   var gameStartQuotes = ["Que la suerte este siempre de su lado.","Que gane el mejor!","Geimu, HAJIMARU","Gentlemen, start your engines"]
   return gameStartQuotes[Math.floor(Math.random() * gameStartQuotes.length)];
 }
-
-function saludosMethod(){
-    return "Hola wachem ";
-  }
 
 function getParamsAsList(mensaje){
   var params = mensaje.substring(mensaje.indexOf('(')+1,mensaje.indexOf(')'))
@@ -105,16 +100,16 @@ function toggleNotif(message, storage){
 
 function finishGame(message,storage){
   var storageValue = storage.getItemSync(message.guild.id);
-  if(storageValue == undefined)
-    storageValue = {};
-  var storageGameData = storageValue.gameData
-  if(storageGameData == undefined)
-    storageGameData = {};
-
-  if(storageGameData == {}){
+  if(storageValue == undefined){
     message.channel.send("No hay un juego en progreso!");
     return;
   }
+  var storageGameData = storageValue.gameData
+  if(storageGameData == undefined){
+    message.channel.send("No hay un juego en progreso!");
+    return;
+  }
+
   if((storageGameData.owner != message.author.id) && (!isAdmin(message.author.tag,message))){
     message.channel.send("No tienes permisos para terminar el juego");
     return;
@@ -129,6 +124,10 @@ function finishGame(message,storage){
   var channelList = storageGameData.channelList;
   for(var channelId of channelList){
     message.guild.channels.get(channelId).delete().then(()=>{console.log("Canal " + channelId + " borrado correctamente")});
+  }
+
+  if(storageGameData.randomTeamChannel != undefined){
+    message.guild.channels.get(storageGameData.randomTeamChannel).delete().then(() => { console.log("Canal de team aleatorio borrado")})
   }
 
   console.log("---------------------------------------");
@@ -149,6 +148,15 @@ function finishGame(message,storage){
 function newGame(params,message,storage){
   if(params.length <2){
     message.channel.send("Comando inválido");
+    return;
+  }
+  if(params[0]<1){
+    message.channel.send("La cantidad de equipos no puede ser menos que 1");
+    return;
+  }
+
+  if(params[0]>6){
+    message.channel.send("Error: Máximo de equipos en 6");
     return;
   }
 
@@ -173,12 +181,15 @@ function newGame(params,message,storage){
   storageGameData.channelList = [];
   storageGameData.roleList = [];
   storageGameData.memberList = [];
+  storageGameData.randomTeamChannel = undefined;
   Promise.all([initializeChannels(params[0],params[1],message,storage)
               ,initializeRoles(params[0],params[1],message)
+              ,message.guild.createChannel("Equipo Aleatorio","voice")
              ]) // Agregar otras promises para roles, miembros, etc para hacer multithreading. GG YO
   .then(response =>{
     storageGameData.channelList = response[0];
     storageGameData.roleList = response[1];
+    storageGameData.randomTeamChannel = response[2].id
     storageValue.gameData = storageGameData;
     storage.setItemSync(message.guild.id,storageValue);
     message.channel.send("Juego creado correctamente!");
@@ -209,31 +220,47 @@ function startGame(message,storage){
   }
   console.log("-------------------------------")
   console.log("Starting game...")
-  for(var channelId of storageGameData.channelList){
+
+  var teamPlayersCount = [];
+  teamPlayersCount.length = storageGameData.teamsAmmount;
+
+
+  var i = 0;
+  for(channelId of storageGameData.channelList){
     var channel = message.guild.channels.get(channelId)
-    message.channel.send("Equipo " + channel.name +":");
-    channel.overwritePermissions(channel.guild.defaultRole,{CONNECT:false})
-    for(var member of channel.members){
-      message.channel.send(member[1].toString());
-      channel.overwritePermissions(member[1].user,{CONNECT:true})
+    teamPlayersCount[i] = { id : channelId, count : 0}
+    for(member of channel.members){
+      teamPlayersCount[i].count++;
     }
+    i++;
   }
 
-  storageValue.gameData.status = "running";
-  storage.setItemSync(message.guild.id,storageValue);
-  message.channel.send("El juego ha comenzado correctamente");
-  message.channel.send(randomStartQuote());
-  console.log("Game started")
+  if(storageValue.gameData.randomTeamChannel != undefined){
+    var randomChannelObj = message.guild.channels.get(storageValue.gameData.randomTeamChannel);
+    autoAssignMembers(randomChannelObj,message,teamPlayersCount).then(()=>{
+      for(var channelId of storageGameData.channelList){
+        var channel = message.guild.channels.get(channelId)
+        message.channel.send("Equipo " + channel.name +":");
+        channel.overwritePermissions(channel.guild.defaultRole,{CONNECT:false})
+        for(var member of channel.members){
+          message.channel.send(member[1].toString());
+          channel.overwritePermissions(member[1].user,{CONNECT:true})
+        }
+      }
+     
+      storageValue.gameData.randomTeamChannel = undefined;
+      storageValue.gameData.status = "running";
+      storage.setItemSync(message.guild.id,storageValue);
+      message.channel.send("El juego ha comenzado correctamente");
+      message.channel.send(randomStartQuote());
+      console.log("Game started")
+    });
+  }
 }
 
 
 function initializeChannels(teamsAmmount,teamNames,message,storage){
   return new Promise((resolve,reject) => {
-     if(teamsAmmount <1){
-      message.channel.send("La cantidad de equipos no puede ser menos que 1");
-      reject();
-      return;
-    }
     console.log("____________________________________________");
     console.log("Creando "+ teamsAmmount + " canales...");
     var promiseList = [];
@@ -270,6 +297,49 @@ function initializeRoles(teamsAmmount,teamNames,message){
   })
 }
 
+
+function autoAssignMembers(randomTeamObj,message,teamPlayersCount){
+  return new Promise((resolve,reject) =>{
+    var members = shuffleArray(randomTeamObj.members);
+    var promiseArray = [];
+    console.log("-----------------------")
+    console.log("Corriendo auto-assign...")
+    for(member of members){
+      var teamPlayersCountElem = leastMembersChannel(teamPlayersCount);
+      var minChannel = message.guild.channels.get(teamPlayersCountElem.id);
+      teamPlayersCount[teamPlayersCount.indexOf(teamPlayersCountElem)].count++;
+      message.channel.send(member[1] + " es asignado al equipo " + minChannel);
+
+      promiseArray.push(member[1].setVoiceChannel(minChannel).then(()=>{console.log("Usuario asignado")}));
+    }
+    Promise.all(promiseArray).then(() => {
+      console.log("Auto-assign terminado.")
+      randomTeamObj.delete().then(() => {
+        console.log("Canal de team aleatorio borrado");
+        resolve();
+      }).catch(error=>{reject(error);});
+    }).catch(error=>{reject(error)});
+  })
+}
+
+function leastMembersChannel(teamPlayersCount){
+  var min = {id : undefined , count : 999};
+  for(element of teamPlayersCount){
+    if(element.count < min.count)
+      min = element;
+  }
+  return min
+}
+
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
+}
 
 
 function isAdmin(memberTag,message){

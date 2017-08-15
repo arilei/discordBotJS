@@ -80,9 +80,6 @@ client.on('message', message => {
         case 'finishGame':
           library.finishGame(message,storage);
           break;
-        case 'saluda':
-          message.channel.send(library.saludos()); // Testing code
-          break;
         case 'toggleNotif': library.toggleNotif(message, storage); break;
       }
     }
