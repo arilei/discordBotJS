@@ -4,8 +4,14 @@
 
 // Import the discord.js module
 const Discord = require('discord.js');
-const library = require('./library.js');
 var storage = require('node-persist');
+
+
+// IMPORT de utilidades
+const library = require('./library.js');
+const gameModule = require('./modules/gameModule.js');
+const notificationModule = require('./modules/notificationModule');
+
 // Create an instance of a Discord client
 const client = new Discord.Client();
 
@@ -31,8 +37,8 @@ client.on('message', message => {
     if(mensaje.includes('(')){ // Si tiene parametros
       cleanMsg = { command : mensaje.substring(0,mensaje.indexOf('(')) , params : library.getParamsAsList(mensaje)} // Separo en un json el comando y los parametros
       switch (cleanMsg.command) {  // Hacer un switch hasta los parametros
-        case 'ch': library.newChannel(cleanMsg.params , message, storage); break;
-        case 'newGame' : library.newGame(cleanMsg.params, message, storage); break;
+        case 'ch': gameModule.newChannel(cleanMsg.params , message, storage); break;
+        case 'newGame' : gameModule.newGame(cleanMsg.params, message, storage); break;
       }
     }else{ // Si es una funcion sin parametros
       switch(mensaje){
@@ -75,12 +81,12 @@ client.on('message', message => {
           }
           break;
         case 'startGame':
-          library.startGame(message,storage);
+          gameModule.startGame(message,storage);
           break;
         case 'finishGame':
-          library.finishGame(message,storage);
+          gameModule.finishGame(message,storage);
           break;
-        case 'toggleNotif': library.toggleNotif(message, storage); break;
+        case 'toggleNotif': notificationModule.toggleNotif(message, storage); break;
       }
     }
   }
@@ -92,9 +98,9 @@ client.on('voiceStateUpdate',(oldMember,newMember) =>{
     guildNotifStatus = {notificationsEnabled : true};
   if(guildNotifStatus.notificationsEnabled){
     if (oldMember.voiceChannel==null || oldMember.voiceChannel == undefined){
-      library.seConecto(newMember,avisos);
+      notificationModule.seConecto(newMember,avisos);
     }else if(newMember.voiceChannel==null || newMember.voiceChannel == undefined){
-      avisos=library.seDesconecto(oldMember,avisos);
+      avisos=notificationModule.seDesconecto(oldMember,avisos);
     }else if(oldMember.voiceChannel.guild.id==newMember.voiceChannel.guild.id){
       return;
     }
