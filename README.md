@@ -34,4 +34,7 @@
       2- Poner en que canal
       3- Poner un cooldown por usuario
       + TTS
+      
+    5* Randomize segun lista de elementos (Sorteo)
+      1- Listas variables (User defined) y fijas (Civs de AoE por ejemplo)
   
