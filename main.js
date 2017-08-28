@@ -39,6 +39,7 @@ client.on('message', message => {
       switch (cleanMsg.command) {  // Hacer un switch hasta los parametros
         case 'ch': gameModule.newChannel(cleanMsg.params , message, storage); break;
         case 'newGame' : gameModule.newGame(cleanMsg.params, message, storage); break;
+        default : message.channel.send("Error: Comando desconocido");
       }
     }else{ // Si es una funcion sin parametros
       switch(mensaje){
@@ -87,6 +88,8 @@ client.on('message', message => {
           gameModule.finishGame(message,storage);
           break;
         case 'toggleNotif': notificationModule.toggleNotif(message, storage); break;
+        case 'help' : message.channel.send(library.help(),{code : 'markdown'}); break;
+        default : message.channel.send("Error: Comando desconocido");
       }
     }
   }
