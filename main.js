@@ -18,7 +18,7 @@ const client = new Discord.Client();
 var avisos={};
 
 // The token of your bot - https://discordapp.com/developers/applications/me
-const token = require('./token.js').prodToken;
+const token = require('./token.js').token;
 
 storage.initSync();
 console.log('Storage initialized');
