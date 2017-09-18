@@ -90,7 +90,7 @@ client.on('message', message => {
           gameModule.finishGame(message,storage);
           break;
         case 'toggleNotif': notificationModule.toggleNotif(message, storage); break;
-        case 'randomizeHelp' : message.channel.send(randomizeModule.randomizeHelp(),{code:true}); break;
+        case 'randomizeHelp' : message.channel.send(randomizeModule.randomizeHelp(),{code:'markdown'}); break;
         case 'help' : message.channel.send(library.help(),{code : 'markdown'}); break;
         default : message.channel.send("Error: Comando desconocido");
       }

@@ -35,6 +35,6 @@
       3- Poner un cooldown por usuario
       + TTS
       
-    5* Randomize segun lista de elementos (Sorteo)
+    5* Randomize segun lista de elementos (DONE)
       1- Listas variables (User defined) y fijas (Civs de AoE por ejemplo)
   

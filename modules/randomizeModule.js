@@ -11,7 +11,7 @@ function randomizeHelp (){
 Usage: nyan!randomize(amount,a,b,...) or nyan!randomize(amount,predefinedSet)
 
 Predefined sets:
-- aoe2 : Age of empires 2 civilizations`
+* aoe2 : Age of Empires 2 civilizations`
 }
 
 function randomize (params, message){
