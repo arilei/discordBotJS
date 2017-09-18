@@ -10,7 +10,8 @@ var storage = require('node-persist');
 // IMPORT de utilidades
 const library = require('./library.js');
 const gameModule = require('./modules/gameModule.js');
-const notificationModule = require('./modules/notificationModule');
+const notificationModule = require('./modules/notificationModule.js');
+const randomizeModule = require('./modules/randomizeModule.js');
 
 // Create an instance of a Discord client
 const client = new Discord.Client();
@@ -39,6 +40,7 @@ client.on('message', message => {
       switch (cleanMsg.command) {  // Hacer un switch hasta los parametros
         case 'ch': gameModule.newChannel(cleanMsg.params , message, storage); break;
         case 'newGame' : gameModule.newGame(cleanMsg.params, message, storage); break;
+        case 'randomize' : randomizeModule.randomize(cleanMsg.params, message); break;
         default : message.channel.send("Error: Comando desconocido");
       }
     }else{ // Si es una funcion sin parametros
@@ -88,6 +90,7 @@ client.on('message', message => {
           gameModule.finishGame(message,storage);
           break;
         case 'toggleNotif': notificationModule.toggleNotif(message, storage); break;
+        case 'randomizeHelp' : message.channel.send(randomizeModule.randomizeHelp(),{code:true}); break;
         case 'help' : message.channel.send(library.help(),{code : 'markdown'}); break;
         default : message.channel.send("Error: Comando desconocido");
       }
